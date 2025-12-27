@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>📍 Location Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: #1a1a24;
+            --accent: #00ff88;
+            --accent-dim: #00cc6a;
+            --danger: #ff4757;
+            --warning: #ffa502;
+            --text-primary: #ffffff;
+            --text-secondary: #8b8b9e;
+            --border: #2a2a3a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        .container {
+            flex: 1;
+            padding: 20px;
+            max-width: 500px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            padding: 30px 0;
+        }
+
+        .logo {
+            font-size: 48px;
+            margin-bottom: 10px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .setup-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.1);
+        }
+
+        .input-field::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .interval-options {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .interval-btn {
+            padding: 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .interval-btn:hover {
+            border-color: var(--accent);
+        }
+
+        .interval-btn.active {
+            background: var(--accent);
+            color: var(--bg-primary);
+            border-color: var(--accent);
+        }
+
+        .status-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .status-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--text-secondary);
+        }
+
+        .status-dot.active {
+            background: var(--accent);
+            box-shadow: 0 0 10px var(--accent);
+            animation: blink 1s ease-in-out infinite;
+        }
+
+        .status-dot.error {
+            background: var(--danger);
+            box-shadow: 0 0 10px var(--danger);
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .status-text {
+            font-weight: 600;
+        }
+
+        .location-info {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .info-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            color: var(--accent);
+        }
+
+        .main-button {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 14px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+            color: var(--bg-primary);
+        }
+
+        .btn-start:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
+        }
+
+        .btn-stop {
+            background: linear-gradient(135deg, var(--danger), #cc3a47);
+            color: white;
+        }
+
+        .btn-stop:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 71, 87, 0.3);
+        }
+
+        .log-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .log-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .log-container {
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            padding: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+        }
+
+        .log-entry {
+            padding: 6px 0;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+
+        .log-entry.success {
+            color: var(--accent);
+        }
+
+        .log-entry.error {
+            color: var(--danger);
+        }
+
+        .log-time {
+            color: var(--text-secondary);
+            margin-right: 10px;
+        }
+
+        .battery-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .battery-icon {
+            width: 24px;
+            height: 12px;
+            border: 2px solid currentColor;
+            border-radius: 3px;
+            position: relative;
+        }
+
+        .battery-icon::after {
+            content: '';
+            position: absolute;
+            right: -5px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 6px;
+            background: currentColor;
+            border-radius: 0 2px 2px 0;
+        }
+
+        .battery-level {
+            position: absolute;
+            left: 2px;
+            top: 2px;
+            bottom: 2px;
+            background: var(--accent);
+            border-radius: 1px;
+            transition: width 0.3s;
+        }
+
+        .permission-warning {
+            background: rgba(255, 165, 2, 0.1);
+            border: 1px solid var(--warning);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .permission-warning.show {
+            display: block;
+        }
+
+        .warning-text {
+            color: var(--warning);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">📍</div>
+            <h1 class="title">Location Tracker</h1>
+            <p class="subtitle">Kirim lokasi GPS ke server</p>
+        </header>
+
+        <div class="permission-warning" id="permissionWarning">
+            <p class="warning-text">⚠️ Izin lokasi diperlukan. Pastikan browser memiliki akses ke GPS dan halaman ini dibuka via HTTPS atau localhost.</p>
+        </div>
+
+        <div class="setup-card">
+            <div class="input-group">
+                <label class="input-label">Server URL</label>
+                <input type="text" class="input-field" id="serverUrl" placeholder="http://localhost:3000">
+            </div>
+            <div class="input-group">
+                <label class="input-label">Nama Perangkat</label>
+                <input type="text" class="input-field" id="deviceName" placeholder="HP Allan">
+            </div>
+            <div class="input-group">
+                <label class="input-label">Interval Update</label>
+                <div class="interval-options">
+                    <button class="interval-btn" data-interval="5">5 dtk</button>
+                    <button class="interval-btn active" data-interval="10">10 dtk</button>
+                    <button class="interval-btn" data-interval="30">30 dtk</button>
+                    <button class="interval-btn" data-interval="60">1 mnt</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="status-card">
+            <div class="status-header">
+                <div class="status-indicator">
+                    <div class="status-dot" id="statusDot"></div>
+                    <span class="status-text" id="statusText">Tidak Aktif</span>
+                </div>
+                <div class="battery-indicator" id="batteryIndicator" style="display: none;">
+                    <div class="battery-icon">
+                        <div class="battery-level" id="batteryLevel"></div>
+                    </div>
+                    <span id="batteryText">--</span>
+                </div>
+            </div>
+            <div class="location-info">
+                <div class="info-row">
+                    <span class="info-label">Latitude</span>
+                    <span class="info-value" id="latValue">--</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Longitude</span>
+                    <span class="info-value" id="lngValue">--</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Akurasi</span>
+                    <span class="info-value" id="accValue">--</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Terakhir Update</span>
+                    <span class="info-value" id="lastUpdate">--</span>
+                </div>
+            </div>
+        </div>
+
+        <button class="main-button btn-start" id="toggleBtn" onclick="toggleTracking()">
+            Mulai Tracking
+        </button>
+
+        <div class="log-card">
+            <h3 class="log-title">Activity Log</h3>
+            <div class="log-container" id="logContainer">
+                <div class="log-entry">Siap untuk memulai tracking...</div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            Location Tracker v1.0 • Buka di HP untuk tracking
+        </footer>
+    </div>
+
+    <script>
+        // Configuration
+        let config = {
+            serverUrl: localStorage.getItem('serverUrl') || window.location.origin,
+            deviceName: localStorage.getItem('deviceName') || 'Device-' + Math.random().toString(36).substr(2, 6),
+            deviceId: localStorage.getItem('deviceId') || 'dev-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
+            interval: parseInt(localStorage.getItem('interval')) || 10
+        };
+
+        let isTracking = false;
+        let trackingInterval = null;
+        let watchId = null;
+        let currentPosition = null;
+        let batteryLevel = null;
+
+        // DOM Elements
+        const serverUrlInput = document.getElementById('serverUrl');
+        const deviceNameInput = document.getElementById('deviceName');
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+        const toggleBtn = document.getElementById('toggleBtn');
+        const latValue = document.getElementById('latValue');
+        const lngValue = document.getElementById('lngValue');
+        const accValue = document.getElementById('accValue');
+        const lastUpdate = document.getElementById('lastUpdate');
+        const logContainer = document.getElementById('logContainer');
+        const permissionWarning = document.getElementById('permissionWarning');
+        const batteryIndicator = document.getElementById('batteryIndicator');
+        const batteryLevelEl = document.getElementById('batteryLevel');
+        const batteryText = document.getElementById('batteryText');
+
+        // Initialize
+        serverUrlInput.value = config.serverUrl;
+        deviceNameInput.value = config.deviceName;
+        localStorage.setItem('deviceId', config.deviceId);
+
+        // Interval buttons
+        document.querySelectorAll('.interval-btn').forEach(btn => {
+            if (parseInt(btn.dataset.interval) === config.interval) {
+                btn.classList.add('active');
+            }
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.interval-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                config.interval = parseInt(btn.dataset.interval);
+                localStorage.setItem('interval', config.interval);
+                addLog(`Interval diubah ke ${config.interval} detik`);
+                
+                if (isTracking) {
+                    stopTracking();
+                    startTracking();
+                }
+            });
+        });
+
+        // Save config on input change
+        serverUrlInput.addEventListener('change', () => {
+            config.serverUrl = serverUrlInput.value;
+            localStorage.setItem('serverUrl', config.serverUrl);
+        });
+
+        deviceNameInput.addEventListener('change', () => {
+            config.deviceName = deviceNameInput.value;
+            localStorage.setItem('deviceName', config.deviceName);
+        });
+
+        // Battery API
+        if ('getBattery' in navigator) {
+            navigator.getBattery().then(battery => {
+                batteryIndicator.style.display = 'flex';
+                
+                function updateBattery() {
+                    batteryLevel = Math.round(battery.level * 100);
+                    batteryLevelEl.style.width = `${battery.level * 100}%`;
+                    batteryText.textContent = `${batteryLevel}%`;
+                    
+                    if (batteryLevel < 20) {
+                        batteryLevelEl.style.background = 'var(--danger)';
+                    } else if (batteryLevel < 50) {
+                        batteryLevelEl.style.background = 'var(--warning)';
+                    } else {
+                        batteryLevelEl.style.background = 'var(--accent)';
+                    }
+                }
+                
+                updateBattery();
+                battery.addEventListener('levelchange', updateBattery);
+            });
+        }
+
+        // Logging
+        function addLog(message, type = 'info') {
+            const time = new Date().toLocaleTimeString('id-ID');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.innerHTML = `<span class="log-time">[${time}]</span>${message}`;
+            logContainer.insertBefore(entry, logContainer.firstChild);
+            
+            // Keep only last 50 entries
+            while (logContainer.children.length > 50) {
+                logContainer.removeChild(logContainer.lastChild);
+            }
+        }
+
+        // Update UI
+        function updateUI() {
+            if (isTracking) {
+                statusDot.classList.add('active');
+                statusDot.classList.remove('error');
+                statusText.textContent = 'Tracking Aktif';
+                toggleBtn.textContent = 'Stop Tracking';
+                toggleBtn.classList.remove('btn-start');
+                toggleBtn.classList.add('btn-stop');
+            } else {
+                statusDot.classList.remove('active');
+                statusText.textContent = 'Tidak Aktif';
+                toggleBtn.textContent = 'Mulai Tracking';
+                toggleBtn.classList.add('btn-start');
+                toggleBtn.classList.remove('btn-stop');
+            }
+        }
+
+        function updateLocationDisplay(position) {
+            latValue.textContent = position.coords.latitude.toFixed(6);
+            lngValue.textContent = position.coords.longitude.toFixed(6);
+            accValue.textContent = `±${Math.round(position.coords.accuracy)}m`;
+            lastUpdate.textContent = new Date().toLocaleTimeString('id-ID');
+        }
+
+        // Send location to server
+        async function sendLocation(position) {
+            const data = {
+                deviceId: config.deviceId,
+                deviceName: config.deviceName,
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+                accuracy: position.coords.accuracy,
+                battery: batteryLevel,
+                timestamp: new Date().toISOString()
+            };
+
+            try {
+                const response = await fetch(`${config.serverUrl}/api/location`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    addLog(`Lokasi terkirim: ${data.latitude.toFixed(4)}, ${data.longitude.toFixed(4)}`, 'success');
+                } else {
+                    throw new Error(`Server error: ${response.status}`);
+                }
+            } catch (error) {
+                addLog(`Gagal mengirim: ${error.message}`, 'error');
+                statusDot.classList.add('error');
+            }
+        }
+
+        // Geolocation
+        function getCurrentLocation() {
+            return new Promise((resolve, reject) => {
+                if (!navigator.geolocation) {
+                    reject(new Error('Geolocation tidak didukung'));
+                    return;
+                }
+
+                navigator.geolocation.getCurrentPosition(resolve, reject, {
+                    enableHighAccuracy: true,
+                    timeout: 30000,
+                    maximumAge: 0
+                });
+            });
+        }
+
+        // Start tracking
+        async function startTracking() {
+            try {
+                addLog('Meminta izin lokasi...');
+                
+                const position = await getCurrentLocation();
+                currentPosition = position;
+                updateLocationDisplay(position);
+                
+                isTracking = true;
+                updateUI();
+                addLog('Tracking dimulai', 'success');
+
+                // Send initial location
+                await sendLocation(position);
+
+                // Set up interval
+                trackingInterval = setInterval(async () => {
+                    try {
+                        const pos = await getCurrentLocation();
+                        currentPosition = pos;
+                        updateLocationDisplay(pos);
+                        await sendLocation(pos);
+                    } catch (error) {
+                        addLog(`Error: ${error.message}`, 'error');
+                    }
+                }, config.interval * 1000);
+
+                // Also watch for significant changes
+                watchId = navigator.geolocation.watchPosition(
+                    (pos) => {
+                        currentPosition = pos;
+                        updateLocationDisplay(pos);
+                    },
+                    (error) => {
+                        addLog(`Watch error: ${error.message}`, 'error');
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 30000,
+                        maximumAge: 5000
+                    }
+                );
+
+            } catch (error) {
+                addLog(`Error: ${error.message}`, 'error');
+                permissionWarning.classList.add('show');
+                statusDot.classList.add('error');
+                statusText.textContent = 'Error';
+            }
+        }
+
+        // Stop tracking
+        function stopTracking() {
+            isTracking = false;
+            
+            if (trackingInterval) {
+                clearInterval(trackingInterval);
+                trackingInterval = null;
+            }
+            
+            if (watchId !== null) {
+                navigator.geolocation.clearWatch(watchId);
+                watchId = null;
+            }
+            
+            updateUI();
+            addLog('Tracking dihentikan');
+        }
+
+        // Toggle
+        function toggleTracking() {
+            if (isTracking) {
+                stopTracking();
+            } else {
+                startTracking();
+            }
+        }
+
+        // Keep screen awake (if supported)
+        if ('wakeLock' in navigator) {
+            let wakeLock = null;
+            
+            async function requestWakeLock() {
+                try {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    addLog('Screen wake lock aktif');
+                } catch (err) {
+                    console.log('Wake lock error:', err);
+                }
+            }
+
+            document.addEventListener('visibilitychange', async () => {
+                if (wakeLock !== null && document.visibilityState === 'visible' && isTracking) {
+                    await requestWakeLock();
+                }
+            });
+        }
+
+        // Service Worker for background (optional)
+        if ('serviceWorker' in navigator) {
+            // Could add background sync here
+        }
+
+        // Prevent sleep on mobile
+        let noSleep = null;
+        function enableNoSleep() {
+            // Basic implementation - play silent audio
+            const audio = new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA');
+            audio.loop = true;
+            audio.play().catch(() => {});
+        }
+    </script>
+</body>
+</html>
